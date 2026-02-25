@@ -2,33 +2,8 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-// ── Theme ──────────────────────────────────────────────
-function applyTheme() {
-  const tp = tg.themeParams;
-  const bg     = tp.bg_color           || '#ffffff';
-  const text   = tp.text_color         || '#000000';
-  const hint   = tp.hint_color         || '#999999';
-  const button = tp.button_color       || '#3b82f6';
-  const btnTxt = tp.button_text_color  || '#ffffff';
-  const sec_bg = tp.secondary_bg_color || '#f4f4f5';
-
-  document.body.style.backgroundColor = bg;
-  document.body.style.color = text;
-
-  document.documentElement.style.setProperty('--bg', bg);
-  document.documentElement.style.setProperty('--text', text);
-  document.documentElement.style.setProperty('--hint', hint);
-  document.documentElement.style.setProperty('--btn', button);
-  document.documentElement.style.setProperty('--btn-text', btnTxt);
-  document.documentElement.style.setProperty('--sec-bg', sec_bg);
-
-  const header = document.querySelector('header');
-  header.style.backgroundColor = bg + 'cc';
-  header.style.borderColor = hint + '33';
-}
-
-applyTheme();
-tg.onEvent('themeChanged', applyTheme);
+tg.setHeaderColor('#050505');
+tg.setBackgroundColor('#050505');
 
 // ── Products ───────────────────────────────────────────
 const products = [
@@ -72,7 +47,11 @@ function getTotalItems() {
 function updateMainButton() {
   const total = getTotal();
   if (total > 0) {
-    tg.MainButton.setParams({ text: `Оформить заказ: ${total} $` });
+    tg.MainButton.setParams({
+      text: `⟁ CHECKOUT: ${total} $ ⟁`,
+      color: '#d4163c',
+      text_color: '#ffffff',
+    });
     tg.MainButton.show();
   } else {
     tg.MainButton.hide();
@@ -86,8 +65,6 @@ function updateCartBadge() {
 
   if (total > 0) {
     badge.style.display = 'flex';
-    badge.style.backgroundColor = 'var(--btn)';
-    badge.style.color = 'var(--btn-text)';
     count.textContent = total;
     badge.classList.add('pop');
     setTimeout(() => badge.classList.remove('pop'), 250);
@@ -103,18 +80,15 @@ function renderControls(product) {
 
   if (qty === 0) {
     wrapper.innerHTML = `
-      <button class="btn-add" onclick="addToCart(${product.id})"
-              style="background:var(--btn);color:var(--btn-text)">
-        Добавить
+      <button class="btn-add" onclick="addToCart(${product.id})">
+        ⟐ ADD ⟐
       </button>`;
   } else {
     wrapper.innerHTML = `
-      <div class="qty-controls" style="background:var(--sec-bg)">
-        <button class="qty-btn" onclick="changeQty(${product.id},-1)"
-                style="background:transparent;color:var(--btn)">−</button>
-        <span class="qty-value" style="color:var(--text)">${qty}</span>
-        <button class="qty-btn" onclick="changeQty(${product.id},1)"
-                style="background:transparent;color:var(--btn)">+</button>
+      <div class="qty-controls">
+        <button class="qty-btn" onclick="changeQty(${product.id},-1)">−</button>
+        <span class="qty-value">${qty}</span>
+        <button class="qty-btn" onclick="changeQty(${product.id},1)">+</button>
       </div>`;
   }
 }
@@ -123,7 +97,7 @@ function renderControls(product) {
 window.addToCart = function (id) {
   const product = products.find((p) => p.id === id);
   cart[id] = { id: product.id, name: product.name, price: product.price, qty: 1 };
-  tg.HapticFeedback.impactOccurred('light');
+  try { tg.HapticFeedback.impactOccurred('heavy'); } catch (_) {}
   renderControls(product);
   updateMainButton();
   updateCartBadge();
@@ -133,7 +107,7 @@ window.changeQty = function (id, delta) {
   if (!cart[id]) return;
   cart[id].qty += delta;
   if (cart[id].qty <= 0) delete cart[id];
-  tg.HapticFeedback.impactOccurred('light');
+  try { tg.HapticFeedback.impactOccurred('light'); } catch (_) {}
   renderControls(products.find((p) => p.id === id));
   updateMainButton();
   updateCartBadge();
@@ -145,18 +119,16 @@ function renderProducts() {
   grid.innerHTML = products
     .map(
       (p) => `
-    <div class="product-card" style="background:var(--sec-bg)">
-      <div style="background:var(--sec-bg);display:flex;align-items:center;justify-content:center;padding:16px">
-        <img src="${p.image}" alt="${p.name}" loading="lazy"
-             style="width:80%;aspect-ratio:1/1;object-fit:contain">
+    <div class="product-card">
+      <div class="card-image-wrap">
+        <img src="${p.image}" alt="${p.name}" loading="lazy">
       </div>
       <div class="product-info">
-        <div class="product-name" style="color:var(--text)">${p.name}</div>
-        <div class="product-price" style="color:var(--btn)">${p.price} $</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">${p.price} $</div>
         <div id="controls-${p.id}">
-          <button class="btn-add" onclick="addToCart(${p.id})"
-                  style="background:var(--btn);color:var(--btn-text)">
-            Добавить
+          <button class="btn-add" onclick="addToCart(${p.id})">
+            ⟐ ADD ⟐
           </button>
         </div>
       </div>
