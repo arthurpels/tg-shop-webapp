@@ -45,6 +45,24 @@
     <div id="product-grid"></div>
   </main>
 
+  <!-- Product detail modal -->
+  <div class="detail-overlay" id="detail-overlay" onclick="closeProduct()">
+    <div class="detail-modal" onclick="event.stopPropagation()">
+      <button class="detail-close" onclick="closeProduct()">✕</button>
+      <div class="detail-image" id="detail-image"></div>
+      <div class="detail-body">
+        <div class="detail-name" id="detail-name"></div>
+        <div class="detail-price" id="detail-price"></div>
+        <div class="detail-divider" aria-hidden="true">⸻ ◆ DESCRIPTION ◆ ⸻</div>
+        <div class="detail-desc" id="detail-desc"></div>
+        <div class="detail-divider" aria-hidden="true">⸻ ◆ SELECT SIZE ◆ ⸻</div>
+        <div class="detail-sizes" id="detail-sizes"></div>
+        <div class="size-hint" id="detail-hint">SELECT SIZE</div>
+        <button class="detail-add-btn" id="detail-add-btn">⟐ ADD TO CART ⟐</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Cart modal -->
   <div class="cart-overlay" id="cart-overlay" onclick="closeCart()">
     <div class="cart-modal" onclick="event.stopPropagation()">
