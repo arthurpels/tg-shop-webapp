@@ -218,7 +218,6 @@ body {
   background: linear-gradient(145deg, #0c0c0c, #070707);
   border-bottom: 1px solid var(--glass-border);
   overflow: hidden;
-  touch-action: pan-y;
 }
 
 .card-carousel::after {
@@ -234,11 +233,6 @@ body {
 .carousel-track {
   display: flex;
   transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
-  will-change: transform;
-}
-
-.carousel-track.dragging {
-  transition: none;
 }
 
 .carousel-slide {
@@ -256,12 +250,45 @@ body {
   display: block;
   filter: grayscale(20%) contrast(1.1) brightness(0.9);
   pointer-events: none;
-  -webkit-user-drag: none;
 }
 
+/* ── Carousel arrows ────────────────────────────────── */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  width: 26px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.55);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.carousel-arrow:active {
+  background: var(--neon-red);
+  color: #fff;
+}
+
+.carousel-arrow.left {
+  left: 0;
+}
+
+.carousel-arrow.right {
+  right: 0;
+}
+
+/* ── Carousel dots ──────────────────────────────────── */
 .carousel-dots {
   position: absolute;
-  bottom: 8px;
+  bottom: 6px;
   left: 0; right: 0;
   display: flex;
   justify-content: center;

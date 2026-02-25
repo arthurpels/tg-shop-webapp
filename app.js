@@ -223,7 +223,9 @@ function renderProducts() {
 
     html += '<div class="product-card">' +
       '<div class="card-carousel" data-carousel="' + p.id + '">' +
+        '<button class="carousel-arrow left" onclick="slideCarousel(' + p.id + ',-1)">\u2039</button>' +
         '<div class="carousel-track">' + slides + '</div>' +
+        '<button class="carousel-arrow right" onclick="slideCarousel(' + p.id + ',1)">\u203A</button>' +
         '<div class="carousel-dots">' + dots + '</div>' +
       '</div>' +
       '<div class="product-info">' +
@@ -238,66 +240,31 @@ function renderProducts() {
   }
 
   grid.innerHTML = html;
-  initCarousels();
 }
 
-// ── Carousel swipe logic ───────────────────────────────
-function initCarousels() {
-  var carousels = document.querySelectorAll('.card-carousel');
-  for (var i = 0; i < carousels.length; i++) {
-    setupCarousel(carousels[i]);
-  }
-}
+// ── Carousel arrow navigation ──────────────────────────
+var carouselState = {};
 
-function setupCarousel(el) {
+window.slideCarousel = function (productId, dir) {
+  var el = document.querySelector('[data-carousel="' + productId + '"]');
+  if (!el) return;
+
   var track = el.querySelector('.carousel-track');
   var dots = el.querySelectorAll('.carousel-dot');
   var total = dots.length;
   if (total <= 1) return;
 
-  var current = 0;
-  var startX = 0;
-  var deltaX = 0;
-  var dragging = false;
-  var threshold = 30;
+  var cur = carouselState[productId] || 0;
+  cur += dir;
+  if (cur < 0) cur = total - 1;
+  if (cur >= total) cur = 0;
+  carouselState[productId] = cur;
 
-  function goTo(idx) {
-    if (idx < 0) idx = 0;
-    if (idx >= total) idx = total - 1;
-    current = idx;
-    track.style.transform = 'translateX(-' + (current * 100) + '%)';
-    for (var d = 0; d < dots.length; d++) {
-      dots[d].className = d === current ? 'carousel-dot active' : 'carousel-dot';
-    }
+  track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+  for (var d = 0; d < dots.length; d++) {
+    dots[d].className = d === cur ? 'carousel-dot active' : 'carousel-dot';
   }
-
-  track.addEventListener('touchstart', function (e) {
-    startX = e.touches[0].clientX;
-    deltaX = 0;
-    dragging = true;
-    track.classList.add('dragging');
-  }, { passive: true });
-
-  track.addEventListener('touchmove', function (e) {
-    if (!dragging) return;
-    deltaX = e.touches[0].clientX - startX;
-    var offset = -(current * 100) + (deltaX / el.offsetWidth) * 100;
-    track.style.transform = 'translateX(' + offset + '%)';
-  }, { passive: true });
-
-  track.addEventListener('touchend', function () {
-    if (!dragging) return;
-    dragging = false;
-    track.classList.remove('dragging');
-    if (deltaX < -threshold) {
-      goTo(current + 1);
-    } else if (deltaX > threshold) {
-      goTo(current - 1);
-    } else {
-      goTo(current);
-    }
-  });
-}
+};
 
 // ── Cart modal ─────────────────────────────────────────
 window.openCart = function () {
